@@ -1,0 +1,51 @@
+﻿@page "/news"
+@using Triton.Data
+@inject IHttpClientFactory HttpClientFactory;
+
+<h3>News</h3>
+
+@if (_news == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var news in _news)
+        {
+            <tr>
+                <td>@news.Title</td>
+                <td>@news.Author</td>
+                <td>@news.Description</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<Triton.Data.News> _news = new List<Data.News>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var newsResponse = await new NewsService(HttpClientFactory).Get("us", "police");
+        
+        foreach (var articles in newsResponse.Articles)
+        {
+            _news.Add(new Triton.Data.News()
+            {
+                Title = articles.Title,
+                Author = articles.Author,
+                Description = articles.Description
+            });
+        }
+    }
+}
